@@ -54,6 +54,7 @@ exports.subirArchivo = async (req, res, next) => {
 };
 
 exports.eliminarArchivo = async (req, res) => {
+  console.log("Desde eliminarArchivo");
   //   console.log(req.params.id);
   //   try {
   //     const archivo = await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
