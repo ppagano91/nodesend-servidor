@@ -54,20 +54,20 @@ exports.subirArchivo = async (req, res, next) => {
 };
 
 exports.eliminarArchivo = async (req, res) => {
-  console.log(req.params.id);
-  try {
-    const archivo = await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
-      "default"
-    ].findOne({ enlace: req.params.id });
-    if (!archivo) {
-      return res.status(404).json({ msg: "Archivo no encontrado." });
-    }
-    await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
-      "default"
-    ].findOneAndRemove({ enlace: req.params.id });
-    return res.json({ msg: "Archivo eliminado." });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ msg: "Hubo un error." });
-  }
+  //   console.log(req.params.id);
+  //   try {
+  //     const archivo = await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
+  //       "default"
+  //     ].findOne({ enlace: req.params.id });
+  //     if (!archivo) {
+  //       return res.status(404).json({ msg: "Archivo no encontrado." });
+  //     }
+  //     await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
+  //       "default"
+  //     ].findOneAndRemove({ enlace: req.params.id });
+  //     return res.json({ msg: "Archivo eliminado." });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(500).json({ msg: "Hubo un error." });
+  //   }
 };
