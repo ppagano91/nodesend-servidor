@@ -57,23 +57,23 @@ exports.obtenerEnlace = async (req, res, next) => {
   const enlace = await Enlaces.findOne({ url });
 
   if (!enlace) {
-    res.status(404).json({ msg: "El enlace no existe." });
+    res.status(404).json({ msg: `El enlace ${url} no existe` });
     return next();
   }
 
-  const { descargas } = enlace;
-
   // Si las descargas son iguales a 1 - Borrar la entrada y borrar el archivo.
+  const { descargas, nombre } = enlace;
+
   if (descargas === 1) {
-    console.log("Si es 1");
-    // Eliminar el archivo.
-    // req.archivo = enlace.nombre;
-    next();
+    // Se pasa el nombre del enlace a req.archivo.
+    req.archivo = nombre;
 
     // Eliminar la entrada de la base de datos.
-    // await Enlaces.findOneAndRemove(enlace.id);
 
-    // next();
+    await Enlaces.findOneAndRemove(req.params.url);
+    console.log(`Enlace ${req.params.url} eliminado.`);
+
+    next();
   } else {
     // Si las descargas son > a 1 - Restar 1.
     enlace.descargas--;
@@ -82,6 +82,4 @@ exports.obtenerEnlace = async (req, res, next) => {
 
   // Si el enlace existe.
   res.json({ archivo: enlace.nombre, password: false });
-
-  console.log(enlace);
 };

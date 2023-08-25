@@ -1,5 +1,6 @@
 const multer = require("multer");
 const shortid = require("shortid");
+const fs = require("fs");
 
 exports.subirArchivo = async (req, res, next) => {
   const configuracionMulter = {
@@ -54,21 +55,10 @@ exports.subirArchivo = async (req, res, next) => {
 };
 
 exports.eliminarArchivo = async (req, res) => {
-  console.log("Desde eliminarArchivo");
-  //   console.log(req.params.id);
-  //   try {
-  //     const archivo = await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
-  //       "default"
-  //     ].findOne({ enlace: req.params.id });
-  //     if (!archivo) {
-  //       return res.status(404).json({ msg: "Archivo no encontrado." });
-  //     }
-  //     await _models_Archivo__WEBPACK_IMPORTED_MODULE_0__[
-  //       "default"
-  //     ].findOneAndRemove({ enlace: req.params.id });
-  //     return res.json({ msg: "Archivo eliminado." });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.status(500).json({ msg: "Hubo un error." });
-  //   }
+  try {
+    fs.unlinkSync(__dirname + `/../uploads/${req.archivo}`);
+    console.log(`Archivo ${req.archivo} eliminado`);
+  } catch (error) {
+    console.log(error);
+  }
 };
