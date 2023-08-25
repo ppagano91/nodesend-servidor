@@ -3,13 +3,7 @@ const router = express.Router();
 const archivosController = require("../controllers/archivosController");
 const auth = require("../middleware/auth");
 
-// Subir archivos.
-const multer = require("multer");
-const upload = multer({
-  dest: "./uploads/",
-});
-
-router.post("/", upload.single("archivo"), archivosController.subirArchivo);
+router.post("/", archivosController.subirArchivo);
 
 router.delete("/:id", archivosController.eliminarArchivo);
 
