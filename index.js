@@ -20,6 +20,9 @@ const port = process.env.PORT || 4000;
 // Habilitar express.json.
 app.use(express.json({ extended: true }));
 
+// Habilitar carpeta publica.
+app.use(express.static("uploads"));
+
 // Rutas de la app.
 app.get("/", (req, res) => {
   res.json({ msg: "Hola mundo" });
