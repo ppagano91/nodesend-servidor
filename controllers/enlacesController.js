@@ -11,12 +11,12 @@ exports.nuevoEnlace = async (req, res, next) => {
   }
 
   // Almacenar en la base de datos.
-  const { nombre_original } = req.body;
+  const { nombre_original, nombre } = req.body;
 
   // Crear Objeto Enlace
   const enlace = new Enlaces();
   enlace.url = shortid.generate();
-  enlace.nombre = shortid.generate();
+  enlace.nombre = nombre;
   enlace.nombre_original = nombre_original;
 
   // Si el usuario está autenticado.
@@ -49,6 +49,16 @@ exports.nuevoEnlace = async (req, res, next) => {
   // Si el usuario está autenticado.
 };
 
+// Obtiene un listado de todos los enlaces.
+exports.todosEnlaces = async (req, res) => {
+  try {
+    const enlaces = await Enlaces.find({}).select("url -_id");
+    res.json({ enlaces });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.obtenerEnlace = async (req, res, next) => {
   console.log(req.params.url);
   const { url } = req.params;
@@ -61,25 +71,7 @@ exports.obtenerEnlace = async (req, res, next) => {
     return next();
   }
 
-  // Si las descargas son iguales a 1 - Borrar la entrada y borrar el archivo.
-  const { descargas, nombre } = enlace;
+  res.json({ archivo: enlace.nombre });
 
-  if (descargas === 1) {
-    // Se pasa el nombre del enlace a req.archivo.
-    req.archivo = nombre;
-
-    // Eliminar la entrada de la base de datos.
-
-    await Enlaces.findOneAndRemove(req.params.url);
-    console.log(`Enlace ${req.params.url} eliminado.`);
-
-    next();
-  } else {
-    // Si las descargas son > a 1 - Restar 1.
-    enlace.descargas--;
-    await enlace.save();
-  }
-
-  // Si el enlace existe.
-  res.json({ archivo: enlace.nombre, password: false });
+  next();
 };
