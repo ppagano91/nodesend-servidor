@@ -11,7 +11,9 @@ const conectarDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
+    console.log("=".repeat(50));
     console.log("Base de datos conectada.");
+    console.log("=".repeat(50));
   } catch (error) {
     console.log(error);
     process.exit(1); // Detener la app.

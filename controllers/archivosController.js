@@ -2,6 +2,7 @@ const Enlaces = require("../models/Enlace");
 const multer = require("multer");
 const shortid = require("shortid");
 const fs = require("fs");
+const path = require("path");
 
 exports.subirArchivo = async (req, res, next) => {
   const configuracionMulter = {
@@ -55,43 +56,53 @@ exports.subirArchivo = async (req, res, next) => {
   //   }
 };
 
-exports.eliminarArchivo = async (req, res) => {
+exports.eliminarArchivo = async (req, res, next) => {
   try {
-    fs.unlinkSync(__dirname + `/../uploads/${req.archivo}`);
-    console.log(`Archivo ${req.archivo} eliminado`);
+    const rutaArchivo = path.join(__dirname, `../uploads/${req.archivo}`);
+
+    if (fs.existsSync(rutaArchivo)) {
+      fs.unlinkSync(rutaArchivo);
+    }
+
+    next();
   } catch (error) {
-    console.log(error);
+    // console.error("Error al eliminar archivo:", error);
+    return res.status(500).json({
+      msg: "Error al eliminar archivo",
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+        }
+    });
+    // next();
   }
 };
 
 exports.descargar = async (req, res, next) => {
-  //   Obtiene el enlace.
-  const { archivo } = req.params;
-  const enlace = await Enlaces.findOne({ nombre: archivo });
+  try {
+    const { archivo } = req.params;
+    const enlace = await Enlaces.findOne({ nombre: archivo });
 
-  const archivoDescarga = __dirname + "/../uploads/" + archivo;
-  res.download(archivoDescarga);
+    if (!enlace) {
+      return res.status(404).json({ msg: "El enlace no existe" });
+    }
 
-  //   Eliminar el archivo y la entrada de la base de datos.
-  // Si las descargas son iguales a 1 - Borrar la entrada y borrar el archivo.
-  const { descargas, nombre } = enlace;
-
-  if (descargas === 1) {
-    // Se pasa el nombre del enlace a req.archivo.
-    req.archivo = nombre;
-
-    // Eliminar la entrada de la base de datos.
-
-    await Enlaces.findOneAndRemove(enlace.id);
-    console.log(`Enlace ${req.params.url} eliminado.`);
-
-    next();
-  } else {
-    // Si las descargas son > a 1 - Restar 1.
-    enlace.descargas--;
-    await enlace.save();
+    const archivoDescarga = path.join(__dirname, `../uploads/${archivo}`);
+    res.download(archivoDescarga, async (err) => {
+      if (err) return res.status(500).end();
+      req.archivo = enlace.nombre;
+      await Enlaces.findByIdAndRemove(enlace.id);
+      next();
+  });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Hubo un error al procesar la descarga",
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+        }
+    });
   }
-
-  // Si el enlace existe.
-  res.json({ archivo: enlace.nombre, password: false });
 };

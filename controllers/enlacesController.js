@@ -67,8 +67,8 @@ exports.tienePassword = async (req, res, next) => {
   const enlace = await Enlaces.findOne({ url });
 
   if (!enlace) {
-    res.status(404).json({ msg: `El enlace ${url} no existe` });
-    return next();
+    return res.status(404).json({ msg: `El link de descarga /${url} no existe o ha expirado` });
+    // return next();
   }
 
   if (enlace.password) {
@@ -95,19 +95,45 @@ exports.verificarPassword = async (req, res, next) => {
   }
 };
 
-exports.obtenerEnlace = async (req, res, next) => {
-  console.log(req.params.url);
-  const { url } = req.params;
+exports.obtenerEnlace = async (req, res) => {
+  console.log("Iniciando obtenerEnlace");
 
-  // Verificar si existe el enlace.
-  const enlace = await Enlaces.findOne({ url });
+  let respondido = false;
+  
+  const responder = (statusCode, data) => {
+    if (!respondido && !res.headersSent) {
+      respondido = true;
+      res.status(statusCode).json(data);
+    }
+  };
+  
+  try {
+    const { url } = req.params;
+    console.log(`Buscando enlace con URL: ${url}`);
 
-  if (!enlace) {
-    res.status(404).json({ msg: `El enlace ${url} no existe` });
-    return next();
+    // Verificar si existe el enlace
+    const enlace = await Enlaces.findOne({ url });
+    console.log("Resultado de búsqueda:", enlace ? "Enlace encontrado" : "Enlace no encontrado");
+
+    if (!enlace) {
+      console.log("Enviando respuesta 404");
+      // return responder(404, { msg: `El enlace ${url} no existe` });
+      return res.status(404).json({ msg: `El link de descarga /${url} no existe o ha expirado` });
+      // return responder(404, { msg: `El link de descarga /${url} no existe o ha expirado` });
+    }
+    else {
+      console.log("Enviando respuesta con archivo");
+      return res.json({ archivo: enlace.nombre, password: false });
+    }
+    
+  } catch (error) {
+    console.error("🔥 Error en obtenerEnlace:", error);
+    console.log("Headers enviados:", res.headersSent);
+    
+    if (!res.headersSent) {
+      console.log("Enviando respuesta de error 500");
+      return res.status(500).json({ msg: "Hubo un error al procesar el enlace" });
+    }
   }
-
-  res.json({ archivo: enlace.nombre, password: false });
-
-  next();
 };
+
