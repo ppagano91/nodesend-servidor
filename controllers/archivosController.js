@@ -26,7 +26,7 @@ exports.subirArchivo = async (req, res, next) => {
     if (!error) {
       res.json({ archivo: req.file.filename });
     } else {
-      console.log("error", error);
+      // console.log("error", error);
       return next();
     }
   });

@@ -43,7 +43,7 @@ exports.nuevoEnlace = async (req, res, next) => {
     await enlace.save();
     res.json({ msg: `${enlace.url}` });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 
   // Si el usuario está autenticado.
@@ -55,7 +55,7 @@ exports.todosEnlaces = async (req, res) => {
     const enlaces = await Enlaces.find({}).select("url -_id");
     res.json({ enlaces });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 };
 
@@ -96,7 +96,6 @@ exports.verificarPassword = async (req, res, next) => {
 };
 
 exports.obtenerEnlace = async (req, res) => {
-  console.log("Iniciando obtenerEnlace");
 
   let respondido = false;
   
@@ -109,29 +108,21 @@ exports.obtenerEnlace = async (req, res) => {
   
   try {
     const { url } = req.params;
-    console.log(`Buscando enlace con URL: ${url}`);
 
     // Verificar si existe el enlace
     const enlace = await Enlaces.findOne({ url });
-    console.log("Resultado de búsqueda:", enlace ? "Enlace encontrado" : "Enlace no encontrado");
 
-    if (!enlace) {
-      console.log("Enviando respuesta 404");
-      // return responder(404, { msg: `El enlace ${url} no existe` });
+    if (!enlace) {      
       return res.status(404).json({ msg: `El link de descarga /${url} no existe o ha expirado` });
       // return responder(404, { msg: `El link de descarga /${url} no existe o ha expirado` });
     }
     else {
-      console.log("Enviando respuesta con archivo");
       return res.json({ archivo: enlace.nombre, password: false });
     }
     
   } catch (error) {
-    console.error("🔥 Error en obtenerEnlace:", error);
-    console.log("Headers enviados:", res.headersSent);
     
     if (!res.headersSent) {
-      console.log("Enviando respuesta de error 500");
       return res.status(500).json({ msg: "Hubo un error al procesar el enlace" });
     }
   }
